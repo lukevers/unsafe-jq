@@ -70,7 +70,7 @@ func TestBasic(t *testing.T) {
 		return
 	}
 
-	results, err := Query("cats", unsafeData)
+	results, err := Query("cats", unsafeData, nil)
 	if err != nil {
 		t.Error(err)
 		return
@@ -95,7 +95,7 @@ func TestBasicNest(t *testing.T) {
 		return
 	}
 
-	results, err := Query("meta.response", unsafeData)
+	results, err := Query("meta.response", unsafeData, nil)
 	if err != nil {
 		t.Error(err)
 		return
@@ -120,7 +120,7 @@ func TestLoopBasicNest(t *testing.T) {
 		return
 	}
 
-	results, err := Query("data.[].attributes.whiskers", unsafeData)
+	results, err := Query("data.[].attributes.whiskers", unsafeData, nil)
 	if err != nil {
 		t.Error(err)
 		return
@@ -137,6 +137,31 @@ func TestLoopBasicNest(t *testing.T) {
 	}
 }
 
+func TestLoopBasicNestOne(t *testing.T) {
+	unsafeData := make(map[string]interface{})
+	err := json.Unmarshal([]byte(testdata), &unsafeData)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	results, err := Query("data.[i].attributes.whiskers", unsafeData, Options{OptionVarIndexAt: 1})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if len(results) != 1 {
+		t.Error("Wrong number of results returned")
+		return
+	}
+
+	if results[0] != float64(15) {
+		t.Error("Wrong result value returned")
+		return
+	}
+}
+
 func TestLoopSlice(t *testing.T) {
 	unsafeData := make(map[string]interface{})
 	err := json.Unmarshal([]byte(testdata), &unsafeData)
@@ -145,7 +170,7 @@ func TestLoopSlice(t *testing.T) {
 		return
 	}
 
-	results, err := Query("data.[].friends", unsafeData)
+	results, err := Query("data.[].friends", unsafeData, nil)
 	if err != nil {
 		t.Error(err)
 		return
@@ -175,7 +200,7 @@ func TestLoopLoop(t *testing.T) {
 		return
 	}
 
-	results, err := Query("data.[].meals.[].time", unsafeData)
+	results, err := Query("data.[].meals.[].time", unsafeData, nil)
 	if err != nil {
 		t.Error(err)
 		return
